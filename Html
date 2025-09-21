@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clínica Unificada</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+<h1>Clínica Saúde & Bem-Estar</h1>
+</header>
+
+<section class="servicos">
+<h2>Serviços</h2>
+<p>Consultas, exames e acompanhamento especializado.</p>
+<img src="consulta.jpg" alt="Consulta">
+<img src="exame.jpg" alt="Exame">
+</section>
+
+<section class="equipe">
+<h2>Equipe</h2>
+<div><img src="drana.jpg" alt="Dra. Ana"><h3>Dra. Ana Silva</h3><p>Cardiologista</p></div>
+<div><img src="drjoao.jpg" alt="Dr. João"><h3>Dr. João Souza</h3><p>Dermatologista</p></div>
+<div><img src="drlucia.jpg" alt="Dra. Lúcia"><h3>Dra. Lúcia Fernandes</h3><p>Pediatra</p></div>
+</section>
+
+<section class="agendamento">
+<h2>Agendamento</h2>
+<form id="formAgendamento">
+<input type="text" name="nome" placeholder="Nome" required>
+<input type="text" name="cpf" placeholder="CPF" required>
+<select name="profissional" id="profissional" required></select>
+<input type="date" name="data" required>
+<button type="submit">Agendar</button>
+</form>
+
+<input type="text" id="cpfBusca" placeholder="Digite CPF">
+<button onclick="buscarCPF()">Buscar</button>
+<button onclick="cancelarCPF()">Cancelar</button>
+<pre id="resultado"></pre>
+</section>
+
+<script>
+const apiUrl = 'https://SEU_BACKEND_RENDER_URL/agendamentos'; // substitua pela URL do backend
+
+async function carregarProfissionais(){
+const res = await fetch('https://SEU_BACKEND_RENDER_URL/profissionais');
+const dados = await res.json();
+const select = document.getElementById('profissional');
+dados.forEach(p=>{
+const opt = document.createElement('option');
+opt.value=p.nome;
+opt.textContent=`${p.nome} - ${p.especialidade}`;
+select.appendChild(opt);
+});
+}
+carregarProfissionais();
+
+document.getElementById('formAgendamento').addEventListener('submit',async e=>{
+e.preventDefault();
+const dados = Object.fromEntries(new FormData(e.target));
+await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dados)});
+alert('Agendamento realizado!');
+e.target.reset();
+});
+
+async function buscarCPF(){
+const cpf=document.getElementById('cpfBusca').value;
+const res=await fetch(`${apiUrl}/${cpf}`);
+const dados=await res.json();
+document.getElementById('resultado').textContent=JSON.stringify(dados,null,2);
+}
+
+async function cancelarCPF(){
+const cpf=document.getElementById('cpfBusca').value;
+const res=await fetch(`${apiUrl}/${cpf}`,{method:'DELETE'});
+const dados=await res.json();
+alert(dados.message);
+document.getElementById('resultado').textContent='';
+}
+</script>
+</body>
+</html>
